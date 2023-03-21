@@ -1,14 +1,13 @@
 package org.bmsk.webtoon
 
+import android.content.Context
 import android.os.Bundle
-import android.view.Gravity
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayoutMediator
 import org.bmsk.webtoon.adapter.ViewPagerAdapter
 import org.bmsk.webtoon.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnTabLayoutNameChanged {
     private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,15 +31,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun nameChanged(position: Int, name: String) {
+        val tab = binding.tabLayout.getTabAt(position)
+        tab?.text = name
+    }
+
     private fun initViewPager() {
+        val sharedPreferences = getSharedPreferences(WebViewFragment.SHARED_PREFERENCE, Context.MODE_PRIVATE)
+        val tab0 = sharedPreferences?.getString("tab0_name", "마이 탭0")
+        val tab1 = sharedPreferences?.getString("tab1_name", "마이 탭1")
+        val tab2 = sharedPreferences?.getString("tab2_name", "마이 탭2")
         binding.viewPager.adapter = ViewPagerAdapter(this)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             run {
-                val textView = TextView(this@MainActivity)
-                textView.text = "position $position"
-                textView.gravity = Gravity.CENTER
+//                val textView = TextView(this@MainActivity)
+//                textView.text = "position $position"
+//                textView.gravity = Gravity.CENTER
 
-                tab.customView = textView
+//                tab.customView = textView
+                tab.text = when(position) {
+                    0 -> tab0
+                    1 -> tab1
+                    else -> tab2
+                }
             }
         }.attach()
     }
