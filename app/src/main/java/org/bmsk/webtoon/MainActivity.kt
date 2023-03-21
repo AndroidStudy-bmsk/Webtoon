@@ -1,9 +1,11 @@
 package org.bmsk.webtoon
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.view.Gravity
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.tabs.TabLayoutMediator
+import org.bmsk.webtoon.adapter.ViewPagerAdapter
 import org.bmsk.webtoon.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -13,21 +15,33 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        initButton()
+        initViewPager()
     }
 
-    private fun initButton() {
-        binding.button1.setOnClickListener {
-            supportFragmentManager.beginTransaction().apply {
-                replace(R.id.fragmentContainer, WebViewFragment())
-                commit()
+    override fun onBackPressed() {
+        val currentFragment = supportFragmentManager.fragments[binding.viewPager.currentItem]
+
+        if (currentFragment is WebViewFragment) {
+            if (currentFragment.canGoBack()) {
+                currentFragment.goBack()
+            } else {
+                super.onBackPressed()
             }
+        } else {
+            super.onBackPressed()
         }
-        binding.button2.setOnClickListener {
-            supportFragmentManager.beginTransaction().apply {
-                replace(R.id.fragmentContainer, BFragment())
-                commit()
+    }
+
+    private fun initViewPager() {
+        binding.viewPager.adapter = ViewPagerAdapter(this)
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            run {
+                val textView = TextView(this@MainActivity)
+                textView.text = "position $position"
+                textView.gravity = Gravity.CENTER
+
+                tab.customView = textView
             }
-        }
+        }.attach()
     }
 }
